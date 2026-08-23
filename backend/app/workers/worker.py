@@ -48,6 +48,17 @@ async def main():
             await session.commit()
         log.info("score sweep finished (%d iocs)", len(ioc_ids))
 
+    async def daily_report_job():
+        from app.core.db import SessionLocal
+        from app.reports.generator import generate_report
+
+        try:
+            async with SessionLocal() as session:
+                report = await generate_report(session, kind="daily")
+            log.info("daily report finished: %s", report.status)
+        except Exception:  # noqa: BLE001 — cron must never die
+            log.exception("daily report job failed")
+
     scheduler = AsyncIOScheduler(timezone="UTC")
     scheduler.add_job(heartbeat, "interval", seconds=60, id="heartbeat", max_instances=1)
     scheduler.add_job(otx_job, _cron("INGEST_OTX_CRON", "0 * * * *"),
@@ -56,11 +67,14 @@ async def main():
                       id="ingest_abuseipdb", max_instances=1, coalesce=True)
     scheduler.add_job(score_sweep_job, _cron("SCORE_SWEEP_CRON", "30 4 * * *"),
                       id="score_sweep", max_instances=1, coalesce=True)
+    scheduler.add_job(daily_report_job, _cron("REPORT_DAILY_CRON", "0 6 * * *"),
+                      id="daily_report", max_instances=1, coalesce=True)
     scheduler.start()
-    log.info("worker scheduler started (ingest jobs: otx=%s abuseipdb=%s sweep=%s)",
+    log.info("worker scheduler started (ingest jobs: otx=%s abuseipdb=%s sweep=%s report=%s)",
              os.environ.get("INGEST_OTX_CRON", "0 * * * *"),
              os.environ.get("INGEST_AIPDB_CRON", "0 3 * * *"),
-             os.environ.get("SCORE_SWEEP_CRON", "30 4 * * *"))
+             os.environ.get("SCORE_SWEEP_CRON", "30 4 * * *"),
+             os.environ.get("REPORT_DAILY_CRON", "0 6 * * *"))
     await asyncio.Event().wait()  # run forever
 
 
