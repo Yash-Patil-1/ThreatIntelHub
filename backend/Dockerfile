@@ -5,6 +5,7 @@ COPY pyproject.toml .
 RUN pip install --no-cache-dir .
 
 COPY app/ app/
+COPY scripts/ scripts/
 COPY alembic/ alembic/
 COPY alembic.ini .
 

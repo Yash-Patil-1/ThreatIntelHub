@@ -9,11 +9,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_db
 from app.core.deps import require_admin
 from app.core.security import encrypt_key, get_fernet, mask_key
-from app.models import ApiKey, AuditLog, FeedSource
+from app.models import ApiKey, AuditLog, FeedSource, QuotaUsage
 
 router = APIRouter(prefix="/api/settings", tags=["settings"])
 
 PROVIDERS = ("otx", "virustotal", "abuseipdb", "shodan")
+
+# Documented free-tier daily caps; None = no hard limit (counted only).
+QUOTA_LIMITS: dict[str, int | None] = {
+    "virustotal": 500,
+    "abuseipdb": 1000,
+    "otx": None,
+    "shodan": None,
+}
 
 
 class KeyIn(BaseModel):
@@ -27,19 +35,29 @@ async def list_api_keys(
 ):
     slugs = {fs.id: fs.slug for fs in (await db.execute(select(FeedSource))).scalars()}
     keys = {r.feed_source_id: r for r in (await db.execute(select(ApiKey))).scalars()}
+    today = datetime.now(timezone.utc).date()
+    quota = {
+        q.feed_source_id: q
+        for q in (
+            await db.execute(select(QuotaUsage).where(QuotaUsage.day == today))
+        ).scalars()
+    }
     out = {}
     for slug in PROVIDERS:
-        row = next((keys[fs_id] for fs_id, s in slugs.items() if s == slug), None)
-        out[slug] = (
-            {"configured": False, "hint": None}
-            if row is None
-            else {
+        fs_id = next((fs_id for fs_id, s in slugs.items() if s == slug), None)
+        row = keys.get(fs_id) if fs_id is not None else None
+        calls_made = quota[fs_id].calls_made if fs_id in quota else 0
+        entry = {"calls_made": calls_made, "calls_limit": QUOTA_LIMITS.get(slug)}
+        if row is None:
+            entry |= {"configured": False, "hint": None}
+        else:
+            entry |= {
                 "configured": row.is_configured,
                 "hint": row.key_hint,
                 "validated_at": row.validated_at,
                 "updated_at": row.updated_at,
             }
-        )
+        out[slug] = entry
     return out
 
 
