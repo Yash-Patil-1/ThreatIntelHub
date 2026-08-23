@@ -83,6 +83,12 @@ export default function DashboardPage() {
           <Button asChild variant="ghost">
             <Link href="/settings">Settings</Link>
           </Button>
+          <Button asChild variant="ghost">
+            <Link href="/reports">Reports</Link>
+          </Button>
+          <Button asChild variant="ghost">
+            <Link href="/yara">YARA</Link>
+          </Button>
           <Button asChild variant="outline">
             <Link href="/iocs">Browse IOCs</Link>
           </Button>
