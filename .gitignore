@@ -1,0 +1,24 @@
+# Secrets & agent memory (never commit)
+.env
+PROJECT_LOG.md
+
+# Data / artifacts
+DATA_DIR/
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+*.egg-info/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+
+# Misc
+.DS_Store
+*.log
+.idea/
+.vscode/
