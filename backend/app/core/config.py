@@ -11,6 +11,7 @@ class Settings:
     cors_origins: list[str] = [
         o.strip() for o in environ.get("CORS_ORIGINS", "http://localhost:3000").split(",")
     ]
+    app_env: str = environ.get("APP_ENV", "production")
 
 
 @lru_cache
