@@ -11,6 +11,8 @@ from app.core.config import settings
 from app.core.security import hash_password
 from app.models import User
 from app.routers.auth import router as auth_router
+from app.routers.dashboard import router as dashboard_router
+from app.routers.iocs import router as iocs_router
 from app.routers.settings import router as settings_router
 
 logger = logging.getLogger(__name__)
@@ -29,6 +31,8 @@ app.add_middleware(
 engine = create_async_engine(settings.database_url)
 
 app.include_router(auth_router)
+app.include_router(dashboard_router)
+app.include_router(iocs_router)
 app.include_router(settings_router)
 
 

@@ -23,6 +23,7 @@ dev = [
     "pytest-asyncio>=0.24",
     "fakeredis>=2.30",
     "respx>=0.22",
+    "aiosqlite>=0.22.1",
 ]
 
 [tool.pytest.ini_options]
