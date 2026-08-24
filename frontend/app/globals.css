@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 47% 4%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 7%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 7%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 189 94% 43%;
+    --primary-foreground: 222 47% 5%;
+    --secondary: 222 32% 13%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 222 32% 13%;
+    --muted-foreground: 215 16% 62%;
+    --accent: 222 32% 13%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --border: 217 28% 16%;
+    --input: 217 28% 16%;
+    --ring: 189 94% 43%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Tremor chart text: default dark-gray content is unreadable on slate-950 */
+.recharts-cartesian-axis-tick text,
+.tremor-AreaChart-root text,
+.recharts-legend-item-text {
+  fill: #94a3b8 !important; /* slate-400 */
+  color: #94a3b8 !important;
+}
+.recharts-tooltip-wrapper .tremor-Banner-root,
+.recharts-default-tooltip {
+  background-color: #0f172a !important;
+  border-color: #1e293b !important;
+}
